@@ -1,0 +1,329 @@
+<mat-card-header>
+  <mat-toolbar class="toolbar">
+    <mat-card-title>Add New course</mat-card-title>
+    <span class="toolbar-spacer"></span>
+    <mat-icon (click)="close()">cancel</mat-icon>
+  </mat-toolbar>
+</mat-card-header>
+<mat-card-content>
+  <br />
+  <form
+    [formGroup]="courseform"
+    (submit)="onsubmit()"
+    fxLayout="column"
+    style="margin-bottom: -1em !important; display: inline-block !important"
+  >
+    <mat-dialog-content>
+      <div fxLayout="row" fxLayoutGap="10px">
+        <!--CourseName input -->
+        <mat-form-field appearance="outline" fxFlex="100">
+          <mat-label>Course Name</mat-label>
+          <input
+            type="text"
+            matInput
+            placeholder="course name"
+            formControlName="courseName"
+            tabindex="1"
+          />
+          <button
+            type="button"
+            mat-icon-button
+            matSuffix
+            [disabled]="(loading$ | async) || !courseform.valid"
+          >
+            <mat-icon color="primary">book</mat-icon>
+          </button>
+
+          <div
+            *ngIf="
+              courseName.invalid && (courseName.dirty || courseName.touched)
+            "
+            class="alert alert-danger"
+          >
+            <div *ngIf="courseName.errors.required">Course is required</div>
+          </div>
+        </mat-form-field>
+      </div>
+      <div fxLayout="row" fxLayoutGap="10px">
+        <!--university input -->
+        <mat-form-field appearance="outline" fxFlex="100">
+          <mat-label> University </mat-label>
+          <input
+            type="text"
+            matInput
+            placeholder="University"
+            #searchUniversity
+            formControlName="university"
+            tabindex="2"
+            [matAutocomplete]="auto"
+          />
+          <mat-autocomplete #auto="matAutocomplete">
+            <ng-container *ngFor="let item of universityList">
+              <mat-option [value]="item.name">
+                {{ item.name }}
+              </mat-option>
+            </ng-container>
+          </mat-autocomplete>
+          <button
+            type="button"
+            mat-icon-button
+            matSuffix
+            [disabled]="(loading$ | async) || !courseform.valid"
+          >
+            <mat-icon color="primary">home</mat-icon>
+          </button>
+
+          <div
+            *ngIf="
+              university.invalid && (university.dirty || university.touched)
+            "
+            class="alert-danger"
+            style="margin-left: 120px !important"
+          >
+            <div *ngIf="university.errors.required">Required field</div>
+          </div>
+        </mat-form-field>
+      </div>
+      <div fxLayout="row" fxLayoutGap="10px">
+        <!--country input -->
+        <mat-form-field appearance="outline" fxFlex="100">
+          <mat-label> Country </mat-label>
+          <input
+            type="text"
+            matInput
+            placeholder="Country"
+            #searchCountry
+            formControlName="country"
+            tabindex="3"
+            [matAutocomplete]="auto2"
+          />
+          <mat-autocomplete #auto2="matAutocomplete">
+            <ng-container *ngFor="let item of countryList">
+              <mat-option [value]="item">
+                {{ item }}
+              </mat-option>
+            </ng-container>
+          </mat-autocomplete>
+          <button
+            type="button"
+            mat-icon-button
+            matSuffix
+            [disabled]="(loading$ | async) || !courseform.valid"
+          >
+            <mat-icon color="primary">home</mat-icon>
+          </button>
+
+          <div
+            *ngIf="country.invalid && (country.dirty || country.touched)"
+            class="alert-danger"
+            style="margin-left: 120px !important"
+          >
+            <div *ngIf="country.errors.required">Required field</div>
+          </div>
+        </mat-form-field>
+
+        <!--City input -->
+        <mat-form-field appearance="outline" fxFlex="100">
+          <mat-label> City </mat-label>
+          <input
+            type="text"
+            matInput
+            placeholder="city"
+            #searchCity
+            formControlName="city"
+            tabindex="4"
+            [matAutocomplete]="auto3"
+          />
+          <mat-autocomplete #auto3="matAutocomplete">
+            <ng-container *ngFor="let item of cityList">
+              <mat-option [value]="item">
+                {{ item }}
+              </mat-option>
+            </ng-container>
+          </mat-autocomplete>
+          <button
+            type="button"
+            mat-icon-button
+            matSuffix
+            [disabled]="(loading$ | async) || !courseform.valid"
+          >
+            <mat-icon color="primary">home</mat-icon>
+          </button>
+
+          <div
+            *ngIf="city.invalid && (city.dirty || city.touched)"
+            class="alert-danger"
+            style="margin-left: 120px !important"
+          >
+            <div *ngIf="city.errors.required">Required field</div>
+          </div>
+        </mat-form-field>
+      </div>
+      <div fxLayout="row" fxLayoutGap="10px">
+        <!--start date input -->
+        <mat-form-field
+          appearance="outline"
+          class="pl-sm-8 no-errors-spacer"
+          fxFlex="50"
+        >
+          <mat-label>Start</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker2"
+            formControlName="start"
+            tabindex="4"
+            placeholder="Start"
+          />
+          <mat-datepicker-toggle
+            color="primary"
+            matSuffix
+            [for]="picker2"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #picker2 color="primary"></mat-datepicker>
+          <div
+            *ngIf="start.invalid && (start.dirty || start.touched)"
+            class="alert alert-danger"
+          >
+            <div *ngIf="start.errors.required">Start date is required</div>
+          </div>
+        </mat-form-field>
+
+        <!--end date input -->
+        <mat-form-field
+          appearance="outline"
+          class="pl-sm-8 no-errors-spacer"
+          fxFlex="50"
+        >
+          <mat-label>End</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker"
+            formControlName="end"
+            tabindex="4"
+            placeholder="End"
+          />
+          <mat-datepicker-toggle
+            color="primary"
+            matSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #picker color="primary"></mat-datepicker>
+          <div
+            *ngIf="end.invalid && (end.dirty || end.touched)"
+            class="alert alert-danger"
+          >
+            <div *ngIf="end.errors.required">End date is required</div>
+          </div>
+        </mat-form-field>
+      </div>
+
+      <div fxLayout="row" fxLayoutGap="10px">
+        <!--price input -->
+        <mat-form-field
+          appearance="outline"
+          class="pl-sm-8 no-errors-spacer"
+          fxFlex="100"
+        >
+          <div matPrefix class="currency-select-wrapper">
+            <mat-select
+              placeholder="Currency"
+              class="currency-select"
+              formControlName="currency"
+            >
+              <mat-option
+                *ngFor="let currency of currencies"
+                [value]="currency"
+              >
+                {{ currency }}
+              </mat-option>
+            </mat-select>
+          </div>
+
+          <mat-label>Price</mat-label>
+          <input
+            matInput
+            formControlName="price"
+            tabindex="5"
+            placeholder="Price"
+            class="price-input"
+          />
+          <button
+            type="button"
+            mat-icon-button
+            matSuffix
+            [disabled]="(loading$ | async) || !courseform.valid"
+          >
+            <mat-icon color="primary">airline_seat_recline_normal</mat-icon>
+          </button>
+          <div
+            *ngIf="price.invalid && (price.dirty || price.touched)"
+            class="alert alert-danger"
+          >
+            <div *ngIf="price.errors?.required">Price is required</div>
+          </div>
+        </mat-form-field>
+      </div>
+
+      <!--description input-->
+      <div fxLayout="row" fxLayoutGap="20px">
+        <mat-form-field
+          class="example-full-width pl-sm-8 no-errors-spacer"
+          appearance="outline"
+          fxFlex="100"
+        >
+          <mat-label>Course description</mat-label>
+          <textarea
+            matInput
+            placeholder="Course description"
+            rows="1"
+            #searchinputdescription
+            formControlName="descriptionCourse"
+            tabindex="7"
+          ></textarea>
+
+          <button
+            type="button"
+            mat-icon-button
+            matSuffix
+            [disabled]="(loading$ | async) || !courseform.valid"
+          >
+            <mat-icon color="primary">description</mat-icon>
+          </button>
+          <div
+            *ngIf="
+              description.invalid && (description.dirty || description.touched)
+            "
+            class="alert alert-danger"
+            style="margin-left: 100px !important"
+          >
+            <div *ngIf="description.errors.required">
+              Description is required
+            </div>
+          </div>
+        </mat-form-field>
+      </div>
+
+      <div fxLayout="row-reverse" fxLayoutGap="10px">
+        <button
+          mat-raised-button
+          cdkFocusInitial
+          class="savebtn"
+          tabindex="8"
+          [disabled]="courseform.invalid"
+        >
+          <span *ngIf="!(loading$ | async)">{{ "Save" }}</span>
+          <mat-spinner
+            color="accent"
+            class="mat-spinner-white mx-auto"
+            *ngIf="loading$ | async"
+            [diameter]="33"
+          >
+          </mat-spinner>
+        </button>
+        <a (click)="close()" mat-raised-button class="cancelbtn">{{
+          "Cancel"
+        }}</a>
+      </div>
+    </mat-dialog-content>
+  </form>
+</mat-card-content>

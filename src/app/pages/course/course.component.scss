@@ -1,0 +1,29 @@
+.toolbar{
+  background-color: #26a2e0;
+  border-radius: 5px;
+  color: white;
+}
+.toolbar-spacer{
+  flex: 1 1 auto;
+  background-color: #234150;
+}
+
+.top-area {
+  padding: 6px;
+}
+table {
+  width: 100%;
+}
+
+.mat-elevation-z8 {
+  overflow-x: auto;
+  width: auto;
+ }
+ tr.example-element-row:not(.example-expanded-row):hover {
+  /* background: #777; */
+  background: lightblue;
+}
+
+.full-width-form-field {
+  width: 100%;
+}

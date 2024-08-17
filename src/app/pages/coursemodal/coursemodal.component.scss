@@ -1,0 +1,45 @@
+.toolbar{
+  background-color: #26a2e0;
+  border-radius: 2px;
+  color: white;
+}
+.toolbar-spacer{
+  flex: 1 1 auto;
+  background-color: #234150;
+  flex-direction: column;
+}
+.cancelbtn{
+  background-color: #ff2800 !important;
+  color: white !important;
+}
+
+.savebtn{
+  background-color:rgb(8, 84, 197) !important;
+  color:white !important; 
+}
+
+// price and currecy input
+// .currency-select-wrapper {
+//   display: inline-flex;
+//   align-items: center;
+//   margin-right: 8px; /* Adjust space between currency and input */
+// }
+// .currency-select {
+//   min-width: 50px; /* Adjust to your preferred size */
+// }
+// .price-input {
+//   flex: 1;
+// }
+.currency-select-wrapper {
+  display: inline-flex !important;
+  align-items: center !important;
+  margin-right: 8px !important; /* Adjust the space between the currency and input */
+}
+
+.currency-select {
+  min-width: 60px !important; /* Adjust to fit the currency codes */
+}
+
+.price-input {
+  width: calc(100% - 70px) !important; /* Adjust this based on the currency-select width */
+}

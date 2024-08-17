@@ -1,1 +1,62 @@
 /* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* You can add global styles to this file, and also import other style files */
+.alert, .alert-danger {
+    color: rgb(230, 26, 26);
+    font-size: x-small;
+    margin-top: -15px;
+    margin-left: 82px;
+  }
+  .error-color {
+    color: rgb(230, 26, 26);
+  }
+  
+  /* table border */
+  table {
+    /* width: 100%; */
+    border-spacing: 5px 0px !important;
+    background: #e1f5fe !important;
+  }
+  td.mat-cell {
+    padding: 5px 5px 5px 5px;
+    border-bottom: 2px solid #0e0d0db6;
+    border-top: 2px solid #08080810;
+  }
+  
+  td.mat-cell:first-child {
+    border-left: 2px solid #070707b6;
+  }
+  
+  td.mat-cell {
+    border-right: 1px solid #1b1b1ab6;
+    border-bottom: 2px solid #1b1b1ab6 !important;
+  }
+  
+  
+  /* dialog confirmation CSS start  */
+  .swal2-icon.swal2-warning {
+    border-color: red;
+    color: red;
+  }
+  
+  .swal2-styled.swal2-cancel{
+    background-color: red;
+  }
+  .swal2-html-container{
+    justify-self: center;
+  }
+  /* dialog confirmation CSS end  */
+  
+  /*  Mat-icon hover effect start*/
+  .mat-icon:hover{
+    color: darkgreen !important;
+     
+     /* color: hotpink; */
+    background: rgba(135, 206, 235,0.8);
+    border-radius: 25%;
+  }
+  /*  Mat-icon hover effect end*/
+  

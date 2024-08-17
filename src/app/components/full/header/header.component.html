@@ -1,0 +1,8 @@
+<mat-toolbar class="topbar" cardWithShadow>
+  <!-- Mobile Menu -->
+  <button mat-icon-button (click)="toggleMobileNav.emit()" *ngIf="!showToggle">
+    <mat-icon class="icon-20 d-flex">menu</mat-icon>
+  </button>
+  <div class="course">Course management</div>
+  <span class="flex-1-auto"></span>
+</mat-toolbar>

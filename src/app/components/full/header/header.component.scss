@@ -1,0 +1,20 @@
+html .topbar {
+    background-color: rgb(254, 255, 255);
+    position: sticky;
+    top: 0;
+    z-index: 9;
+    height: 70px;
+    width: 1200px;
+  }
+  
+  .topbar-dd {
+    min-width: 200px !important;
+  }
+  
+  .object-cover {
+    object-fit: cover;
+  }
+  .course{
+    text-align: center;
+    float: calc(100);
+  }
