@@ -36,6 +36,7 @@ export class CourseComponent implements OnInit {
   size: any;
   courses: any;
   filterValue: any;
+  isLoading = false;
 
   constructor(private dialog: MatDialog, private courseService:CourseService, private changedetect: ChangeDetectorRef, 
     private toastrService: ToastrService
@@ -112,39 +113,43 @@ export class CourseComponent implements OnInit {
     });
   }
 
-  applyFilter(event:Event): any {
+  applyFilter(event: Event): any {
+    this.isLoading = true;
     this.filterValue = (event.target as HTMLInputElement).value;
     this.filterValue = this.filterValue.trim(); // Remove whitespace
-    this.filterValue = this.filterValue.toLowerCase(); // Datasource defaults to lowercase matches
+    this.filterValue = this.filterValue.toLowerCase();
     
     const page = this.page??1;
     const size = this.size?? 10;
     this.courseService.searchAllCourses(this.filterValue,page, size).subscribe((response: any) => {
       this.courses = response;
       this.dataSource = new MatTableDataSource(response["items"]);
-      this.dataSource.filter = this.filterValue;
+      this.isLoading = false;
       this.changedetect.detectChanges();
     });
   }
 
   nextPage(event: PageEvent): any {
+    this.isLoading = true;
     this.page = event.pageIndex+1;
     this.size = event.pageSize;
-    console.log('filter ', this.filterValue);
     if (this.filterValue && this.filterValue != '') {
       this.courseService.searchAllCourses(this.filterValue,this.page, this.size).subscribe((newPageData: any) => {
         this.courses = newPageData;
         this.dataSource = new MatTableDataSource(this.courses?.items);
+        this.isLoading = false;
       });
     } else {
       this.courseService.getAllCourses(this.page, this.size).subscribe((newPageData: any) => {
         this.courses = newPageData;
         this.dataSource = new MatTableDataSource(this.courses?.items);
+        this.isLoading = false;
       });
     }
   }
 
   getCourses(): any {
+    this.isLoading = true;
     const page = this.page != null || this.page != undefined ? this.page : 1;
     const size = this.size != null || this.size != undefined ? this.size : 10;
     
@@ -152,13 +157,16 @@ export class CourseComponent implements OnInit {
       this.courseService.searchAllCourses(this.filterValue,this.page, this.size).subscribe((newPageData: any) => {
         this.courses = newPageData;
         this.dataSource = new MatTableDataSource(this.courses?.items);
+        this.isLoading = false;
       });
     } else {
       this.courseService.getAllCourses(page, size).subscribe((response: any) => {
         this.courses = response;
         this.dataSource = new MatTableDataSource(response["items"]);
+        this.isLoading = false;
         this.changedetect.detectChanges();
-        console.log(response);
+      }, (error: any) => {
+        this.isLoading = false;
       });
     }
   }

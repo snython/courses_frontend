@@ -27,3 +27,11 @@ table {
 .full-width-form-field {
   width: 100%;
 }
+
+// loader
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px; /* Adjust based on your table height */
+}

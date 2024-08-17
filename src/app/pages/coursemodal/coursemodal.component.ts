@@ -163,10 +163,11 @@ export class CoursemodalComponent implements OnInit {
   }
 
   onsubmit(): any{
+    this.loading$ = true;
     this.courseName.setValue(this.courseName.value.toUpperCase());
     if (!this.data.edit){
       this.courseService.saveCourse(this.courseform.value).subscribe((response: any) => {
-
+        this.loading$ = false;
         this.toastrService.success('New course created sucessfully', 'Course', {
           timeOut: 5000, progressBar: true, positionClass: 'toast-bottom-right', enableHtml: true
         });
