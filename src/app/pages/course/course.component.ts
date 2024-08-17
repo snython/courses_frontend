@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, InjectionToken, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, InjectionToken, OnInit, ViewChild } from '@angular/core';
 import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -11,6 +11,7 @@ import { MaterialModule } from '../../../material.module';
 import { CoursemodalComponent } from '../coursemodal/coursemodal.component';
 import { HttpClientModule } from '@angular/common/http';
 import { DateDifferencePipe } from '../../pipes/date-difference.pipe';
+import { debounceTime, distinctUntilChanged, filter, fromEvent, map, switchMap } from 'rxjs';
 
 export const TOAST_CONFIG = new InjectionToken('ToastConfig');
 
@@ -24,6 +25,7 @@ export const TOAST_CONFIG = new InjectionToken('ToastConfig');
   imports:[ToastrModule, SweetAlert2Module,MaterialModule , HttpClientModule, DateDifferencePipe]
 })
 export class CourseComponent implements OnInit {
+  @ViewChild('searchInput') searchInput: ElementRef;
 
   ispopup: boolean;
 
@@ -38,6 +40,7 @@ export class CourseComponent implements OnInit {
   constructor(private dialog: MatDialog, private courseService:CourseService, private changedetect: ChangeDetectorRef, 
     private toastrService: ToastrService
   ) {
+    this.searchInput = {} as ElementRef;
     this.ispopup = false;
     this.sort = new MatSort();
 
@@ -47,7 +50,25 @@ export class CourseComponent implements OnInit {
 
   ngOnInit(): void {
     this.getCourses();
-   }
+  }
+  
+  ngAfterViewInit(): any {
+    // Search country autocomplete
+    fromEvent<any>(this.searchInput.nativeElement, 'keyup')
+      .pipe(
+        map((event) => event.target.value),
+        debounceTime(1000),
+        distinctUntilChanged(), filter((query: string) => query?.length > 3),
+        switchMap((searchParam) => {
+          this.filterValue = searchParam.trim().toLowerCase();
+          return this.courseService.searchAllCourses(this.filterValue,this.page??1,this.size??10)
+        })
+      )
+      .subscribe((searchResults: any) => {
+        this.courses = searchResults;
+        this.dataSource = new MatTableDataSource(searchResults["items"]);
+      });
+  }
 
   addCourse(): any {
 
@@ -61,7 +82,7 @@ export class CourseComponent implements OnInit {
     // };
     dialogConfig.data = {};
     const dialogref = this.dialog.open(CoursemodalComponent, {
-      width: '650px', height: 'auto', autoFocus: true, disableClose: dialogConfig.disableClose, data: {}
+      width: '700px', height: 'auto', autoFocus: true, disableClose: dialogConfig.disableClose, data: {}
     });
 
     dialogref.afterClosed().subscribe((result: any) => {
@@ -79,7 +100,7 @@ export class CourseComponent implements OnInit {
     dialogConfig.autoFocus = true;
     dialogConfig.data = {};
     const dialogref = this.dialog.open(CoursemodalComponent, {
-      width: '600px', height: 'auto', autoFocus: true, disableClose: dialogConfig.disableClose, data: {
+      width: '700px', height: 'auto', autoFocus: true, disableClose: dialogConfig.disableClose, data: {
         courseData: element,
         edit: true
       }
@@ -96,8 +117,8 @@ export class CourseComponent implements OnInit {
     this.filterValue = this.filterValue.trim(); // Remove whitespace
     this.filterValue = this.filterValue.toLowerCase(); // Datasource defaults to lowercase matches
     
-    const page = this.page != null || this.page != undefined ? this.page : 1;
-    const size = this.size != null || this.size != undefined ? this.size : 10;
+    const page = this.page??1;
+    const size = this.size?? 10;
     this.courseService.searchAllCourses(this.filterValue,page, size).subscribe((response: any) => {
       this.courses = response;
       this.dataSource = new MatTableDataSource(response["items"]);

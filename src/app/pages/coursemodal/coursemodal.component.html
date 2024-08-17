@@ -22,7 +22,7 @@
             type="text"
             matInput
             placeholder="course name"
-            formControlName="courseName"
+            formControlName="name"
             tabindex="1"
           />
           <button
@@ -59,7 +59,7 @@
           />
           <mat-autocomplete #auto="matAutocomplete">
             <ng-container *ngFor="let item of universityList">
-              <mat-option [value]="item.name">
+              <mat-option [value]="item.name" (click)="setUniversityId(item)">
                 {{ item.name }}
               </mat-option>
             </ng-container>
@@ -99,8 +99,8 @@
           />
           <mat-autocomplete #auto2="matAutocomplete">
             <ng-container *ngFor="let item of countryList">
-              <mat-option [value]="item">
-                {{ item }}
+              <mat-option [value]="item.country">
+                {{ item.country }}
               </mat-option>
             </ng-container>
           </mat-autocomplete>
@@ -136,8 +136,8 @@
           />
           <mat-autocomplete #auto3="matAutocomplete">
             <ng-container *ngFor="let item of cityList">
-              <mat-option [value]="item">
-                {{ item }}
+              <mat-option [value]="item.city">
+                {{ item.city }}
               </mat-option>
             </ng-container>
           </mat-autocomplete>
@@ -170,9 +170,9 @@
           <input
             matInput
             [matDatepicker]="picker2"
-            formControlName="start"
+            formControlName="start_date"
             tabindex="4"
-            placeholder="Start"
+            placeholder="Start date"
           />
           <mat-datepicker-toggle
             color="primary"
@@ -194,13 +194,13 @@
           class="pl-sm-8 no-errors-spacer"
           fxFlex="50"
         >
-          <mat-label>End</mat-label>
+          <mat-label>End date</mat-label>
           <input
             matInput
             [matDatepicker]="picker"
-            formControlName="end"
+            formControlName="end_date"
             tabindex="4"
-            placeholder="End"
+            placeholder="End date"
           />
           <mat-datepicker-toggle
             color="primary"
@@ -218,11 +218,11 @@
       </div>
 
       <div fxLayout="row" fxLayoutGap="10px">
-        <!--price input -->
+        <!--currency input-->
         <mat-form-field
           appearance="outline"
           class="pl-sm-8 no-errors-spacer"
-          fxFlex="100"
+          fxFlex="20"
         >
           <div matPrefix class="currency-select-wrapper">
             <mat-select
@@ -234,11 +234,17 @@
                 *ngFor="let currency of currencies"
                 [value]="currency"
               >
-                {{ currency }}
+                {{ currency | currencySymbol }}
               </mat-option>
             </mat-select>
           </div>
-
+        </mat-form-field>
+        <!--price input -->
+        <mat-form-field
+          appearance="outline"
+          class="pl-sm-8 no-errors-spacer"
+          fxFlex="80"
+        >
           <mat-label>Price</mat-label>
           <input
             matInput
@@ -246,6 +252,7 @@
             tabindex="5"
             placeholder="Price"
             class="price-input"
+            (keyup)="numbersonly($event)"
           />
           <button
             type="button"
@@ -277,7 +284,7 @@
             placeholder="Course description"
             rows="1"
             #searchinputdescription
-            formControlName="descriptionCourse"
+            formControlName="description"
             tabindex="7"
           ></textarea>
 

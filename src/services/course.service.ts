@@ -18,7 +18,7 @@ export class CourseService {
   }
 
   updateCourse(course: any): any {
-    return this.http.put(`${this.API_URL}/courses`, course, {
+    return this.http.put(`${this.API_URL}/courses/${course.id}`, course, {
       observe: 'response',
     });
   }
@@ -31,19 +31,15 @@ export class CourseService {
     return this.http.delete(`${this.API_URL}/courses/${id}`);
   }
 
-  searchCountryByName(arg0: string): any {
-    console.log(arg0);
-    return arg0;
-  }
-
-  searchUniveristyByName(arg0: string): any {
-    console.log(arg0);
-  }
-  searchCityByName(arg0: string): any {
-    console.log(arg0);
+  searchUniveristyByName(param: string, page=1,size=10): any {
+    return this.http.get(`${this.API_URL}/universities?search=${param}&page=${page}&limit=${size}`);
   }
 
   searchAllCourses(param: any,page=1, size=10): any{
     return this.http.get(`${this.API_URL}/courses?search=${param}&page=${page}&limit=${size}`);
+  }
+
+  getCurrencyList(): any{
+    return this.http.get(`${this.API_URL}/currencies`);
   }
 }

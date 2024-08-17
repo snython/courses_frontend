@@ -1,6 +1,6 @@
 .toolbar{
   background-color: #26a2e0;
-  border-radius: 2px;
+  border-radius: 1px;
   color: white;
 }
 .toolbar-spacer{
@@ -19,21 +19,10 @@
 }
 
 // price and currecy input
-// .currency-select-wrapper {
-//   display: inline-flex;
-//   align-items: center;
-//   margin-right: 8px; /* Adjust space between currency and input */
-// }
-// .currency-select {
-//   min-width: 50px; /* Adjust to your preferred size */
-// }
-// .price-input {
-//   flex: 1;
-// }
 .currency-select-wrapper {
   display: inline-flex !important;
   align-items: center !important;
-  margin-right: 8px !important; /* Adjust the space between the currency and input */
+  margin-right: 8px !important;
 }
 
 .currency-select {

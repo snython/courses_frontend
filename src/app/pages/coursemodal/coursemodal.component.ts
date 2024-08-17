@@ -6,6 +6,9 @@ import { CourseService } from '../../../services/course.service';
 import { MaterialModule } from '../../../material.module';
 import { debounceTime, distinctUntilChanged, filter, fromEvent, map, switchMap } from 'rxjs';
 import { MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
+import { CurrencySymbolPipe } from '../../pipes/currency-symbol.pipe';
+import { CurrencyPipe } from '@angular/common';
+import { AdressService } from '../../../services/address.service';
 declare var $: any;
 
 export const TOAST_CONFIG = new InjectionToken('ToastConfig');
@@ -15,8 +18,8 @@ export const TOAST_CONFIG = new InjectionToken('ToastConfig');
   templateUrl: './coursemodal.component.html',
   styleUrls: ['./coursemodal.component.scss'],
   standalone: true,
-  providers: [CourseService],
-  imports:[MaterialModule, ReactiveFormsModule]
+  providers: [CourseService,AdressService, CurrencyPipe],
+  imports:[MaterialModule, ReactiveFormsModule, CurrencySymbolPipe]
 })
 export class CoursemodalComponent implements OnInit {
 
@@ -30,14 +33,15 @@ export class CoursemodalComponent implements OnInit {
   universityList:any;
   countryList: any;
   cityList: any;
-  currencies: string[] = ['USD', 'EUR', 'GBP', 'AUD', 'CAD'];
+  currencies: string[] = [];
 
   constructor(
     private fb: FormBuilder,
     private dialogref: MatDialogRef<CoursemodalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private courseService: CourseService,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    private adresseService: AdressService
   )
   {
     this.searchInputUniversity = {} as ElementRef;
@@ -50,18 +54,58 @@ export class CoursemodalComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.courseform = this.fb.group({idCourse: this.data.edit ? this.data.courseData.idCourse : '',
-      // immaticulation: [this.data.edit ? this.data.busdata.immaticulation : '', [Validators.required]],
-      courseName: [this.data.edit ? this.data.courseData.courseName : '', [Validators.required]],
+    this.getCurrenciesList();
+    console.log('update ', this.data);
+    this.courseform = this.fb.group({
+      id: [this.data.edit ? this.data.courseData.id : ''],
+      name: [{ value: this.data.edit ? this.data.courseData.name : '', disabled: this.data.edit }, [Validators.required]],
       price: [this.data.edit ? this.data.courseData.price : '', [Validators.required]],
-      university: [this.data.edit ? this.data.courseData.university : '', [Validators.required]],
-      country: [this.data.edit ? this.data.courseData.country : '', [Validators.required]],
-      city: [this.data.edit ? this.data.courseData.city : '', [Validators.required]],
-      start: [this.data.edit ? this.data.courseData.start : '', Validators.required],
-      end: [this.data.edit ? this.data.courseData.end : '', Validators.required],
-      descriptionCourse: [this.data.edit ? this.data.courseData.courseDescription : '', [Validators.required]],
+      university_id: [{ value: this.data.edit ? this.data.courseData.university.id : '', disabled: this.data.edit }, [Validators.required]],
+      university: [{ value: this.data.edit ? this.data.courseData.university.name : '', disabled: this.data.edit }, [Validators.required]],
+      country: [{ value: this.data.edit ? this.data.courseData.location.country : '', disabled: this.data.edit }, [Validators.required]],
+      city: [{ value: this.data.edit ? this.data.courseData.location.city : '', disabled: this.data.edit }, [Validators.required]],
+      start_date: [this.data.edit ? this.data.courseData.start_date : '', Validators.required],
+      end_date: [this.data.edit ? this.data.courseData.end_date : '', Validators.required],
+      description: [this.data.edit ? this.data.courseData.description : '', [Validators.required]],
+      currency: [this.data.edit ? this.data.courseData.currency : 'USD', [Validators.required]],
     });
+
+    this.validateEndDateInput();
   }
+
+
+  validateEndDateInput() {
+  let isHandlingProgrammatically = false;
+
+  this.end.valueChanges.subscribe((val: any) => {
+    if (!isHandlingProgrammatically && this.start.value > this.end.value) {
+      isHandlingProgrammatically = true;
+      this.end.setValue('');
+      this.toastrService.info('Please check start and end date. Start date cannot be greater than end date.', 'Date validation', {
+        timeOut: 5000,
+        progressBar: true,
+        enableHtml: true
+      });
+    } else {
+      isHandlingProgrammatically = false;
+    }
+  });
+
+  this.start.valueChanges.subscribe((val: any) => {
+    if (!isHandlingProgrammatically && this.start.value > this.end.value) {
+      isHandlingProgrammatically = true;
+      this.end.setValue('');
+      this.toastrService.info('Please check start and end date. Start date cannot be greater than end date.', 'Date validation', {
+        timeOut: 5000,
+        progressBar: true,
+        enableHtml: true
+      });
+    } else {
+      isHandlingProgrammatically = false;
+    }
+  });
+}
+
 
   ngAfterViewInit(): any {
     // Search country autocomplete
@@ -69,17 +113,13 @@ export class CoursemodalComponent implements OnInit {
       .pipe(
         map((event) => event.target.value),
         debounceTime(1000),
-        distinctUntilChanged(),filter((query: string) =>  query?.length > 3),
+        distinctUntilChanged(),filter((query: string) =>  query?.length > 1),
         switchMap((searchParam) =>
-            this.courseService.searchCountryByName(searchParam.trim())
+            this.adresseService.searchCountryByName(searchParam.trim().toLowerCase())
         )
       )
       .subscribe((searchResults: any) => {
-        // this.countryList = searchResults;
-        this.countryList.push(searchResults);
-        this.countryList.push('Cameroon');
-        this.countryList.push('Ghana');
-        this.countryList.push('Congo');
+        this.countryList = searchResults.items;
       });
     
     // Search city autocomplete
@@ -87,17 +127,20 @@ export class CoursemodalComponent implements OnInit {
       .pipe(
         map((event) => event.target.value),
         debounceTime(1000),
-        distinctUntilChanged(),filter((query: string) =>  query?.length > 3),
-        switchMap((searchParam) =>
-            this.courseService.searchCityByName(searchParam.trim())
-        )
+        distinctUntilChanged(),filter((query: string) =>  query?.length > 0),
+        switchMap((searchParam) => {
+          if (this.country.value == null || this.country.value == '') {
+            this.city.setValue('');
+            this.toastrService.info('Please first fill the country input!', 'Course', {
+              timeOut: 5000, progressBar: true, positionClass: 'toast-bottom-right', enableHtml: true
+            });
+            return;
+          }
+          return this.adresseService.searchCityByName(this.country.value,searchParam.trim())
+        })
       )
       .subscribe((searchResults: any) => {
-        // this.cityList = searchResults;
-        this.cityList.push(searchResults);
-        this.cityList.push('Cameroon');
-        this.cityList.push('Ghana');
-        this.cityList.push('Congo');
+        this.cityList = searchResults.items;
       });
     
     // Search university autocomplete
@@ -105,17 +148,13 @@ export class CoursemodalComponent implements OnInit {
       .pipe(
         map((event) => event.target.value),
         debounceTime(1000),
-        distinctUntilChanged(),filter((query: string) =>  query?.length > 3),
+        distinctUntilChanged(),filter((query: string) =>  query?.length > 2),
         switchMap((searchParam) =>
             this.courseService.searchUniveristyByName(searchParam.trim())
         )
       )
       .subscribe((searchResults: any) => {
-        // this.universityList = searchResults;
-        this.universityList.push(searchResults);
-        this.universityList.push('Cameroon');
-        this.universityList.push('Ghana');
-        this.universityList.push('Congo');
+        this.universityList = searchResults.items;
       });
     }  
 
@@ -124,11 +163,9 @@ export class CoursemodalComponent implements OnInit {
   }
 
   onsubmit(): any{
-    // this.immatriculation.setValue(this.immatriculation.value.toUpperCase());
     this.courseName.setValue(this.courseName.value.toUpperCase());
     if (!this.data.edit){
       this.courseService.saveCourse(this.courseform.value).subscribe((response: any) => {
-        // console.log(response);
 
         this.toastrService.success('New course created sucessfully', 'Course', {
           timeOut: 5000, progressBar: true, positionClass: 'toast-bottom-right', enableHtml: true
@@ -143,7 +180,6 @@ export class CoursemodalComponent implements OnInit {
       });
     }else{
     this.courseService.updateCourse(this.courseform.value).subscribe((response: any) => {
-      console.log(response);
 
       this.toastrService.success('Course updated successfully', 'Course', {
         timeOut: 5000, progressBar: true, positionClass: 'toast-bottom-right', enableHtml: true
@@ -151,19 +187,49 @@ export class CoursemodalComponent implements OnInit {
       this.close();
     },
     (error: any) => {
-      this.toastrService.error('Erreur de mise a jour', 'Course', {
+      this.toastrService.error('Error updating the course', 'Course', {
         timeOut: 5000, progressBar: true, positionClass: 'toast-bottom-right', enableHtml: true
       });
     });
     }
   }
 
+  getCurrenciesList(): any{
+    this.courseService.getCurrencyList().subscribe((response: any) => {
+      this.currencies = response;
+    },
+      (error: any) => {
+        this.toastrService.error('Error getting the list of currencies', 'Course', {
+          timeOut: 5000, progressBar: true, positionClass: 'toast-bottom-right', enableHtml: true
+        });
+      });
+  }
+
+  numbersonly(val: any): any {
+    let input = this.courseform.controls['price'];
+    let value = input.value;
+
+    // Replace any character that is not a digit or a decimal point
+    value = value.replace(/[^0-9.]/g, '');
+
+    // Ensure only one decimal point is allowed
+    if (value.split('.').length > 2) {
+      value = value.substring(0, value.length - 1);
+    }
+
+    input.patchValue(value);
+  }
+
   get courseName(): any{
-    return this.courseform.get('courseName');
+    return this.courseform.get('name');
   }
 
   get university():any{
     return this.courseform.get('university');
+  }
+
+  get universityId():any{
+    return this.courseform.get('university_id');
   }
 
   get country(): any{
@@ -179,14 +245,18 @@ export class CoursemodalComponent implements OnInit {
   }
 
   get start(): any{
-    return this.courseform.get('start');
+    return this.courseform.get('start_date');
   }
 
   get end(): any{
-    return this.courseform.get('end');
+    return this.courseform.get('end_date');
   }
 
   get description(): any{
-    return this.courseform.get('descriptionCourse');
+    return this.courseform.get('description');
+  }
+
+  setUniversityId(data: any): void{
+    this.universityId.setValue(data.id);
   }
 }
